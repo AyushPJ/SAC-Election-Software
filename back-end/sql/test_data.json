@@ -1,0 +1,18 @@
+{
+    "students": [
+        {
+            "roll_no": "B190921CS",
+            "name": "AYUSH PETER.JUNIOR",
+            "phone_no": "1234567890",
+            "nitc_email": "ayush_b190921cs@nitc.ac.in"
+        }
+    ],
+    
+    "admins": [
+        {
+            "name": "Ayush",
+            "phone_no": "1234567890",
+            "email": "pjayush@gmail.com"
+        }
+    ]
+}

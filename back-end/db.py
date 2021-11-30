@@ -1,9 +1,12 @@
 import psycopg2
+
 from faker import Faker
 import random
+
 import click 
 from flask import current_app, g
 from flask.cli import with_appcontext
+
 def get_db():
     if 'db' not in g: # If we've not initialised the database, then
                       # initialise it
@@ -38,10 +41,22 @@ def init_db():
         phone_no = fake.phone_number()[-10:]
         cur.execute("insert into nitc_students(roll_no,name,phone_no,nitc_email) values (%s,%s,%s,%s)",(rollNo,name,phone_no,nitc_email))
     
+    import json
+
+    testDataJSON = open('sql/test_data.json', 'r')
+    testData = json.load(testDataJSON)
+    testDataJSON.close()
+
+    for student in testData['students']:
+        cur.execute("insert into nitc_students(roll_no,name,phone_no,nitc_email) values (%s,%s,%s,%s)",(student['roll_no'],student['name'],student['phone_no'],student['nitc_email']))
+    
+    for admin in testData['admins']:
+        cur.execute("insert into admins(name,phone_no,email) values (%s,%s,%s)",(admin['name'],admin['phone_no'],admin['email']))
 
     cur.close()
     db.commit()
     close_db()
+
 
 # All flask commands cannot be run separately. If we simply import this file and try to run things, it will not work since flask creates a "context" for everything to run (e.g. g, current_app etc.). The with_appcontext decorator adds this context before running the init_db_command
 @click.command('initdb', help="initialise the database") # If we run "flask initdb", this function will run.

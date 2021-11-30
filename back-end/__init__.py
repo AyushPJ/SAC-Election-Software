@@ -1,33 +1,54 @@
 from flask import Flask, request, redirect
+from flask.helpers import url_for
 from flask_cors import CORS
+from flask_login import LoginManager, current_user
+from flask_login.utils import login_fresh, login_required
 
 
 
 def create_app():
     app = Flask("SAC-Election-Software")
     CORS(app)
+    import json
+    secretsJSON = open('secrets.json', 'r')
+    secrets = json.load(secretsJSON)
+    secretsJSON.close()
     app.config.from_mapping(
         DATABASE_NAME = "SAC-Election",
-        SECRET_KEY = "dev",
+        SECRET_KEY = secrets['SECRET_KEY'],
+        GOOGLE_CLIENT_ID = secrets['GOOGLE_CLIENT_ID'],
+        GOOGLE_CLIENT_SECRET = secrets['GOOGLE_CLIENT_SECRET']
     )
+    app.secret_key = app.config['SECRET_KEY']
     
-    
-    
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+
     from . import db 
     db.init_app(app)
 
-    from . import candidates
-    app.register_blueprint(candidates.bp)
+    from . import auth
+    app.register_blueprint(auth.bp)
 
-    from . import vote
-    app.register_blueprint(vote.bp)
+    from . import admin
+    app.register_blueprint(admin.bp)
 
+    from . import student
+    app.register_blueprint(student.bp)
 
-    # @app.route("/", methods=["GET"])
-    # def index():
-    #     return redirect("/vote/genSec")
-        
+    from . import applications
+    app.register_blueprint(applications.bp)
 
+    from .user import User
+    @login_manager.user_loader
+    def load_user(userID):
+        user = User.get(userID)
+        return user
+
+    @app.route("/", methods=["GET"])
+    def index():
+            return ("Welcome")
+    
     return app
     
 

@@ -5,9 +5,19 @@ drop table if exists applicants;
 drop table if exists voters;
 drop table if exists nitc_students;
 drop table if exists admins;
+drop table if exists users;
+
+create table users(
+       id text primary key,
+       roll_no text,
+       name text not null,
+       email text unique not null,
+       profile_pic text not null,
+       admin boolean not null default false
+);
 
 create table admins(
-       admin_id int primary key,
+       admin_id serial primary key,
        name text not null,
        phone_no text unique not null,
        email text unique not null
