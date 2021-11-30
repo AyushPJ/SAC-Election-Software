@@ -12,6 +12,16 @@ class User(UserMixin):
     def get_id(self):
         return self.id
 
+    def get_adminID(self):
+        if not self.admin:
+            return None
+        from .db import get_db
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT admin_id FROM admins WHERE email = %s", (self.email,))
+        adminID = cursor.fetchone()[0]
+        return adminID
+
     @staticmethod
     def get(userID):
         from .db import get_db
@@ -25,7 +35,7 @@ class User(UserMixin):
 
         return user
 
-    
+
     @staticmethod
     def createStudent(id, name, email, profilePic):
         from .db import get_db

@@ -78,7 +78,7 @@ class UserTab extends Component {
         return (
             <Offcanvas placement="end" id="userTab" show={this.props.userTabShow} onHide={() => this.props.setUserTabShow(false)}>
                 <Offcanvas.Header>
-                    <Offcanvas.Title>Logged in as STUDENT</Offcanvas.Title>
+                    <Offcanvas.Title>Logged in as ADMINISTRATOR</Offcanvas.Title>
                     <button type="button" className="btn-close text-reset" onClick={() => this.props.setUserTabShow(false)}></button>
                 </Offcanvas.Header>
                 <Offcanvas.Body>
@@ -88,7 +88,6 @@ class UserTab extends Component {
                         </div>
                         <div>
                             <h2>{this.state.user.name}</h2>
-                            <h4>Roll No.: {this.state.user.rollNo}</h4>
                             <h4>Email: {this.state.user.email}</h4>
                         </div>
                         <button className="btn btn-link" onClick={() => this.logoutUser()}>Log Out</button>
