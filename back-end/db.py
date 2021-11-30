@@ -49,9 +49,13 @@ def init_db():
 
     for student in testData['students']:
         cur.execute("insert into nitc_students(roll_no,name,phone_no,nitc_email) values (%s,%s,%s,%s)",(student['roll_no'],student['name'],student['phone_no'],student['nitc_email']))
-    
+        cur.execute("insert into voters(roll_no) values (%s)",(student['roll_no'],))
+
     for admin in testData['admins']:
         cur.execute("insert into admins(name,phone_no,email) values (%s,%s,%s)",(admin['name'],admin['phone_no'],admin['email']))
+
+    for position in testData['posts']:
+        cur.execute("insert into posts(position) values (%s)",(position,))
 
     cur.close()
     db.commit()

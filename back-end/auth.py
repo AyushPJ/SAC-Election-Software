@@ -1,10 +1,10 @@
-from flask import Blueprint, current_app, flash
+import re
+from flask import Blueprint, current_app, flash, jsonify
 from flask import request, render_template, redirect, url_for
 
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 from google.oauth2 import id_token
 from google.auth.transport import requests
-
 
 bp = Blueprint("auth", "auth", url_prefix="/auth")
 
@@ -120,3 +120,11 @@ def logout():
             from .utils import get_safe_redirect
             next_url = get_safe_redirect(request.args.get('next'))
     return redirect(next_url)
+
+
+@bp.route("/get-user")
+@login_required
+def getUser():
+     if (request.accept_mimetypes.best == "application/json"):
+         return jsonify(dict(user = dict(name=current_user.name, rollNo=current_user.rollNo, email=current_user.email, profilePic=current_user.profilePic)))
+         

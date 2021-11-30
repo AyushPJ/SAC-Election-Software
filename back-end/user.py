@@ -2,10 +2,10 @@ from flask_login import UserMixin
 
 class User(UserMixin):
     def __init__(self, id, rollNo, name, email, profilePic, admin):
-        self.id = id,
-        self.rollNo = rollNo,
-        self.name = name,
-        self.email = email,
+        self.id = id
+        self.rollNo = rollNo
+        self.name = name
+        self.email = email
         self.profilePic = profilePic
         self.admin = admin
 

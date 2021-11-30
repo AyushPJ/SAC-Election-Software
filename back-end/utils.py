@@ -1,6 +1,6 @@
 from flask import request, redirect, url_for, current_app
 from urllib.parse import urlparse, urljoin
-from flask.helpers import flash
+from flask.helpers import flash, make_response
 from flask_login import current_user
 
 def is_safe_redirect_url(target):
@@ -26,7 +26,11 @@ def get_safe_redirect(url):
 def admin_required(func):
     def admin_wrapper(*args, **kwargs):
         if not current_user.is_authenticated:
-            return redirect(url_for('auth.loginAdmin', next=request.url))
+            if (request.accept_mimetypes.best == "application/json"):
+                resp = make_response(dict(msg="login-redirect",location= url_for('auth.loginAdmin', next=request.url)))
+                return resp
+            else:
+                return redirect(url_for('auth.loginAdmin', next=request.url))
         elif not current_user.admin:
                 flash("You must log in as admin")
                 return current_app.login_manager.unauthorized()
@@ -38,7 +42,11 @@ def admin_required(func):
 def student_required(func):
     def student_wrapper(*args, **kwargs):
         if not current_user.is_authenticated:
-            return redirect(url_for('auth.loginStudent', next=request.url))
+            if (request.accept_mimetypes.best == "application/json"):
+                resp = make_response(dict(msg="login-redirect",location= url_for('auth.loginStudent', next=request.url)))
+                return resp
+            else:
+                return redirect(url_for('auth.loginStudent', next=request.url))
         elif current_user.admin:
             flash("You must log in as student")
             return current_app.login_manager.unauthorized()

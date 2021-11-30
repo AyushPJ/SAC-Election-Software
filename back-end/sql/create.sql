@@ -6,6 +6,7 @@ drop table if exists voters;
 drop table if exists nitc_students;
 drop table if exists admins;
 drop table if exists users;
+drop table if exists posts;
 
 create table users(
        id text primary key,
@@ -38,10 +39,10 @@ create table voters(
 );
 
 create table applicants(
-       application_no int primary key,
+       application_no serial primary key,
        position text not null,
        cgpa float not null,
-       application_status boolean not null default false,
+       application_status text not null,
        admin_id int default null references admins(admin_id) on delete set null
 );
 
@@ -59,4 +60,8 @@ create table votes_for(
 create table applies_for(
        roll_no text references voters(roll_no) on delete cascade,
        application_no int primary key references applicants(application_no) on delete cascade
+);
+
+create table posts(
+       position text primary key
 );
