@@ -131,8 +131,8 @@ class App extends Component {
                     <th>Application No.</th>
                     <th>Position</th>
                     <th>CGPA</th>
-                    <th>Rejected By</th>
-                    <th>Remark</th>
+                    <th>Rejected by</th>
+                    {/* <th>Remark</th> */}
                   </tr>
                 </thead>
 
@@ -153,7 +153,7 @@ class App extends Component {
                     <th>Application No.</th>
                     <th>Position</th>
                     <th>CGPA</th>
-                    <th>Accepted By</th>
+                    <th>Accepted by</th>
                   </tr>
                 </thead>
 

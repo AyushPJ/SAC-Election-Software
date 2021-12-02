@@ -5,6 +5,7 @@ import axios from 'axios'
 import Navbar from './Navbar';
 import AddRemPosts from './AddRemPosts';
 import ModVoters from './ModVoters';
+import ViewApps from './ViewApps';
 
 class AdminPanel extends Component {
 
@@ -81,7 +82,7 @@ class AdminPanel extends Component {
                     <ModVoters showToastAlert={this.state.showToastAlert} setShowToastAlert={(val) => this.updateState("showToastAlert", val)} setToastAlertMessage={(msg)=>this.setToastAlertMessage(msg)} />
                   </Tab.Pane>
                   <Tab.Pane eventKey="viewApps">
-                    asdsad
+                    <ViewApps showToastAlert={this.state.showToastAlert} setShowToastAlert={(val) => this.updateState("showToastAlert", val)} setToastAlertMessage={(msg)=>this.setToastAlertMessage(msg)} />
                   </Tab.Pane>
                 </Tab.Content>
               </Col>

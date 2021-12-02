@@ -71,6 +71,22 @@ def submitApplication():
         conn = get_db()
         cursor = conn.cursor()
         rollNo = current_user.rollNo
+        cursor.execute("select application_no from applies_for where roll_no = %s", (rollNo,))
+        appNos = cursor.fetchall()
+        waitingApps = 0
+        acceptedApps = 0
+        for appNo in appNos:
+            cursor.execute("select application_status from applicants where application_no = %s", (appNo[0],))
+            status = cursor.fetchone()[0]
+            if (status == "waiting"):
+                waitingApps = waitingApps + 1
+            elif (status == "accepted"):
+                acceptedApps = acceptedApps + 1
+        
+        if (acceptedApps > 0):
+            return {"msg": "accepted"}, 200
+        elif (waitingApps > 0):
+            return {"msg": "waiting"}, 200
         cursor.execute("insert into applicants(position, cgpa, application_status) values(%s,%s,%s)", (pos, cgpa, "waiting"))
         cursor.execute("select application_no from applicants order by application_no desc limit 1");
         appNo = cursor.fetchone()[0]

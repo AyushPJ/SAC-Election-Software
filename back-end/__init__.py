@@ -17,7 +17,8 @@ def create_app():
         DATABASE_NAME = "SAC-Election",
         SECRET_KEY = secrets['SECRET_KEY'],
         GOOGLE_CLIENT_ID = secrets['GOOGLE_CLIENT_ID'],
-        GOOGLE_CLIENT_SECRET = secrets['GOOGLE_CLIENT_SECRET']
+        GOOGLE_CLIENT_SECRET = secrets['GOOGLE_CLIENT_SECRET'],
+        
     )
     app.secret_key = app.config['SECRET_KEY']
     

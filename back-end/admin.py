@@ -43,7 +43,7 @@ def addPosts():
             conn.close()
             return "OK", 200
         else:
-            return "Invalid request format", 400
+            return "invalid request", 404
     
 @bp.route('/posts/remove', methods=["POST"])
 @admin_required
@@ -59,10 +59,10 @@ def removePosts():
             conn.close()
             return "OK", 200
         else:
-            return "Invalid request format", 400
+            return "invalid request", 404
 
 @bp.route('/fetch-student', methods=["POST"])
-#@admin_required
+@admin_required
 def fetchStudent():
     if (request.accept_mimetypes.best == "application/json"):
         rollNo = request.json.get('rollNo')
@@ -76,7 +76,7 @@ def fetchStudent():
         else:
             return jsonify(dict(student = dict(rollNo=student[0], name=student[1], phoneNo=student[2], email=student[3], eligibility=student[4])))
     else:
-        return "Invalid request format", 400
+        return "invalid request", 404
 
 @bp.route('/change-eligibility', methods=["POST"])
 @admin_required
@@ -92,4 +92,81 @@ def changeEligibility():
         conn.close()
         return "OK", 200
     else:
-        return "Invalid request format", 400
+        return "invalid request", 404
+
+@bp.route('/get-applications/<post>', methods=["GET"])
+@admin_required
+def getApplications(post):
+    if (request.accept_mimetypes.best == "application/json"):
+        conn = get_db()
+        cursor = conn.cursor()
+        if (post=="All"):
+            cursor.execute("select * from applicants where application_status=%s", ("waiting",))
+        else:
+            cursor.execute("select * from applicants where application_status=%s and position=%s", ("waiting",post))
+        applications = cursor.fetchall()
+        apps = []
+        for application in applications:
+            appNo = application[0]
+            cursor.execute("select * from applies_for where application_no = %s", (appNo,))
+            rollNo = cursor.fetchone()[0]
+            cursor.execute("select * from nitc_students where roll_no = %s", (rollNo,))
+            student = cursor.fetchone()
+            apps.append(dict(rollNo = student[0], name= student[1], phoneNo = student[2], email = student[3], applicationNo = application[0], position=application[1], cgpa=application[2]))
+        conn.commit()
+        conn.close()
+        return jsonify(dict(applications = apps))
+    else:
+        return "invalid request", 404
+
+
+@bp.route('/change-status', methods=["POST"])
+@admin_required
+def changeStatus():
+    if (request.accept_mimetypes.best == "application/json"):
+        conn = get_db()
+        cursor = conn.cursor()
+        apps = request.json.get('applications')
+        adminID = current_user.get_adminID()
+        for app in apps:
+            appNo = app['applicationNo']
+            status = app['status']
+            if status == "accept":
+                cursor.execute("update applicants set application_status=%s, admin_id=%s where application_no = %s", ("accepted",adminID, appNo))
+                cursor.execute("insert into candidates (application_no) values (%s)", (appNo,))
+            else:
+                cursor.execute("update applicants set application_status=%s, admin_id=%s where application_no = %s", ("rejected", adminID, appNo))
+
+        conn.commit()
+        conn.close()
+        return "OK", 200
+    else:
+        return "invalid request", 404
+
+@bp.route('/election-statistics', methods=["GET"])
+@admin_required
+def electionStatistics():
+    if (request.accept_mimetypes.best == "application/json"):
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("select n.name, c.votes, a.position from candidates c, appicants a, applies_for f, voters v, nitc_students n where c.application_no = a.application_no and a.application_no = f.application_no and f.roll_no = v.roll_no and v.roll_no = n.roll_no group by a.position")
+        candidates = cursor.fetchall()
+        votes = []
+        pos = candidates[0][2]
+        ind = []
+        for candidate in candidates:
+            if pos == candidate[2]:
+                ind.append(dict(name = candidate[0], votes = candidate[1]))
+            else:
+                votes.append(dict(position = pos))
+                pos = candidate[2]
+        conn.commit()
+        conn.close()
+        return jsonify(dict(electionStats = votes))
+    else:
+        return "invalid request", 404
+        
+
+
+
+

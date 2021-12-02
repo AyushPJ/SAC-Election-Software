@@ -47,3 +47,15 @@ code {
 .user-pic-div{
   text-align: center;
 }
+
+.apps-accept{
+  background-color: rgba(43, 255, 0, 0.377);
+}
+
+.apps-reject{
+  background-color: rgba(255, 0, 0, 0.315);
+}
+
+.apps-waiting{
+  background-color:rgb(255, 255, 255);
+}

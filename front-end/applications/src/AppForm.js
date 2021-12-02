@@ -9,7 +9,8 @@ import axios from 'axios'
 class AppForm extends Component {
     constructor(props) {
         super(props);
-        this.cgpaIP = createRef(null)
+        this.cgpaIP = createRef(null);
+        this.statusMsg = "";
         this.state = {
             pickedPosition: "General Secretary",
             positions: [],
@@ -26,14 +27,14 @@ class AppForm extends Component {
         this.fetchPosts();
     }
 
-    fetchPosts(){
+    fetchPosts() {
         axios.get("/applications/get-posts", { headers: { 'Accepts': 'application/json' } })
-        .then((resp)=>{
-            this.updateState("positions", resp.data['posts'])
-        })
-        .catch((err)=>{
-            console.error(err);
-        })
+            .then((resp) => {
+                this.updateState("positions", resp.data['posts'])
+            })
+            .catch((err) => {
+                console.error(err);
+            })
     }
 
     updateState(prop, val) {
@@ -57,20 +58,38 @@ class AppForm extends Component {
     submitForm(e) {
         e.preventDefault();
         axios.post("/applications/submit", { cgpa: this.cgpaIP.current.value, position: this.state.pickedPosition }, { headers: { 'Accepts': 'application/json' } })
-            .then(() => {
+            .then((resp) => {
                 clearTimeout(this.statusDismiss);
-                this.updateState("status","success");
-                this.props.refetchApps();
-                this.statusDismiss = setTimeout(() => {
-                    this.updateState("status","");
-                }, 5000);
+                if (resp.data.msg && resp.data.msg === "accepted") {
+                    this.statusMsg = "One of your applications has already been accepted.";
+                    this.updateState("status", "fail");
+                    this.statusDismiss = setTimeout(() => {
+                        this.updateState("status", "");
+                    }, 5000);
+                }
+                else if (resp.data.msg && resp.data.msg === "waiting") {
+                    this.statusMsg = "There can only be one standing application waiting for approval.";
+                    this.updateState("status", "fail");
+                    this.statusDismiss = setTimeout(() => {
+                        this.updateState("status", "");
+                    }, 5000);
+                }
+                else {
+                    this.statusMsg = "Application submitted successfully.";
+                    this.updateState("status", "success");
+                    this.props.refetchApps();
+                    this.statusDismiss = setTimeout(() => {
+                        this.updateState("status", "");
+                    }, 5000);
+                }
             })
             .catch((error) => {
                 console.error(error);
                 clearTimeout(this.statusDismiss);
-                this.updateState("status","fail");
+                this.statusMsg = "Something went wrong.";
+                this.updateState("status", "fail");
                 this.statusDismiss = setTimeout(() => {
-                    this.updateState("status","");
+                    this.updateState("status", "");
                 }, 5000);
 
             });
@@ -83,13 +102,13 @@ class AppForm extends Component {
     render() {
         const failAlert = <div className="alert alert-danger d-flex align-items-center" role="alert">
             <div>
-                Something went wrong.
+                {this.statusMsg}
             </div>
         </div>;
 
         const successAlert = <div className="alert alert-success d-flex align-items-center" role="alert">
             <div>
-                Application submitted successfully.
+                {this.statusMsg}
             </div>
         </div>
 
@@ -101,7 +120,7 @@ class AppForm extends Component {
 
         let dropdownElements = this.state.positions.map((title, index) => {
             return (
-                <Dropdown.Item key={index} onClick={(e) => this.updateState("pickedPosition",title)}>{title}</Dropdown.Item>
+                <Dropdown.Item key={index} onClick={(e) => this.updateState("pickedPosition", title)}>{title}</Dropdown.Item>
             )
         });
         if (this.state.positions.length === 0)

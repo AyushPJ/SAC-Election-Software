@@ -14,14 +14,14 @@ def loginStudent():
     if 'next' in request.args:
         next = request.args.get('next')
 
-    return render_template('login_student.html',next=next)
+    return render_template('student_login.html',next=next)
 
 @bp.route("/login/admin", methods=["GET"])
 def loginAdmin():
     next = ''
     if 'next' in request.args:
         next = request.args.get('next')
-    return render_template('login_admin.html',next=next)
+    return render_template('admin_login.html',next=next)
 
 @bp.route("/login/callback", methods=["POST"])
 def loginCallback():
@@ -40,7 +40,6 @@ def loginCallback():
     try:
         # Specify the CLIENT_ID of the app that accesses the backend:
         idinfo = id_token.verify_oauth2_token(token, requests.Request(), current_app.config['GOOGLE_CLIENT_ID'])
-
         # Or, if multiple clients access the backend server:
         # idinfo = id_token.verify_oauth2_token(token, requests.Request())
         # if idinfo['aud'] not in [CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]:
