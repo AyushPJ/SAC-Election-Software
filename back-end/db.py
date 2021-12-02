@@ -56,6 +56,7 @@ def init_db():
 
     for position in testData['posts']:
         cur.execute("insert into posts(position) values (%s)",(position,))
+        
 
     cur.close()
     db.commit()

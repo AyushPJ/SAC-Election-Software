@@ -66,6 +66,8 @@ def loginCallback():
                     retCode = User.createStudent(id=id_, name=name, email=email, profilePic=profilePic)
                     if retCode == -1:
                         return "Student not in database.", 400
+                    elif retCode == -2:
+                        return render_template('ineligible.html')
                 elif userClass == "admin":
                     retCode = User.createAdmin(id=id_, name=name, email=email, profilePic=profilePic)
                     if retCode == -1:

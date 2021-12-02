@@ -45,7 +45,8 @@ class User(UserMixin):
         student = cursor.fetchone()
         if student == None:
             return -1
-
+        if not student[4]:
+            return -2
         rollNo = student[0]
         cursor.execute(
             "INSERT INTO users (id, roll_no, name, email, profile_pic, admin) "

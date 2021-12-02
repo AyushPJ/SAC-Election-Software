@@ -31,16 +31,22 @@ class ViewApps extends Component {
     }
 
 
-    fetchApps(post="All") {
-        axios.get("/admin/get-applications/"+post, { headers: { 'Accepts': 'application/json' } })
+    fetchApps(post = "All") {
+        axios.get("/admin/get-applications/" + post, { headers: { 'Accepts': 'application/json' } })
             .then((resp) => {
                 let status = [];
                 if (resp.data.applications) {
-                    resp.data.applications.forEach(() => {
-                        status.push("waiting");
-                    });
-                    this.updateState("status", status);
-                    this.updateState("applications", resp.data.applications);
+                    if (resp.data.applications.length == 0) {
+                        this.props.setToastAlertMessage("No pending applications.");
+                        this.props.setShowToastAlert(true);
+                    }
+                    else {
+                        resp.data.applications.forEach(() => {
+                            status.push("waiting");
+                        });
+                        this.updateState("status", status);
+                        this.updateState("applications", resp.data.applications);
+                    }
                 }
             })
             .catch((err) => {
@@ -57,17 +63,17 @@ class ViewApps extends Component {
     submitChanges(val) {
         let apps = []
 
-        this.state.applications.forEach((app, index)=>{
-            if(this.state.status[index] !== "waiting") {
+        this.state.applications.forEach((app, index) => {
+            if (this.state.status[index] !== "waiting") {
                 app["status"] = this.state.status[index];
                 apps.push(app);
             }
 
         });
 
-        axios.post("/admin/change-status", {applications: apps}, { headers: { 'Accepts': 'application/json' } })
+        axios.post("/admin/change-status", { applications: apps }, { headers: { 'Accepts': 'application/json' } })
             .then((resp) => {
-                
+
                 this.props.setToastAlertMessage("Changes saved.");
                 this.props.setShowToastAlert(true);
                 this.postSelectRef.current.value = "All"
@@ -127,21 +133,21 @@ class ViewApps extends Component {
         return (
             <Fragment>
                 <Container className="mod-voters-tab">
-                <div className="d-grid gap-2">
-                    <Row className="g-2">
-                        <Col md={8}>
-                            <FloatingLabel controlId="floatingSelectGrid" label="Filter by posts">
-                                <Form.Select ref={this.postSelectRef}>
-                                    <option>All</option>
-                                    {posts}
-                                </Form.Select>
-                            </FloatingLabel>
-                        </Col>
-                        <Col md={4}>
-                            <Button style={{height: "100%", width: "100%"}} variant="outline-secondary" onClick={()=>this.fetchApps(this.postSelectRef.current.value)}>Fetch Applications</Button>
-                        </Col>
-                    </Row>
-                    <Button style={{height: "100%", width: "100%"}} variant="outline-dark" onClick={()=>this.submitChanges()}>Submit Changes</Button>
+                    <div className="d-grid gap-2">
+                        <Row className="g-2">
+                            <Col md={8}>
+                                <FloatingLabel controlId="floatingSelectGrid" label="Filter by posts">
+                                    <Form.Select ref={this.postSelectRef}>
+                                        <option>All</option>
+                                        {posts}
+                                    </Form.Select>
+                                </FloatingLabel>
+                            </Col>
+                            <Col md={4}>
+                                <Button style={{ height: "100%", width: "100%" }} variant="outline-secondary" onClick={() => this.fetchApps(this.postSelectRef.current.value)}>Fetch Applications</Button>
+                            </Col>
+                        </Row>
+                        <Button style={{ height: "100%", width: "100%" }} variant="outline-dark" onClick={() => this.submitChanges()}>Submit Changes</Button>
 
                     </div>
 

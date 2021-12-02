@@ -1,10 +1,12 @@
-from flask import Blueprint, jsonify
-from flask import request, render_template
+from flask import Blueprint, app, jsonify
+from flask import request, render_template, current_app
 from flask_login import current_user
+from flask_login.utils import logout_user
 from psycopg2 import IntegrityError
 from .utils import admin_required
 from .db import get_db
 from re import fullmatch
+from datetime import date, datetime
 
 bp = Blueprint("admin", "admin", url_prefix="/admin")
 
@@ -87,6 +89,7 @@ def changeEligibility():
         conn = get_db()
         cursor = conn.cursor()
         adminID = current_user.get_adminID()
+        cursor.execute("delete from users where roll_no = %s", (rollNo,))
         cursor.execute("update nitc_students set eligibility_status=%s, admin_id = %s where roll_no = %s", (eligibility, adminID, rollNo))
         conn.commit()
         conn.close()
@@ -149,24 +152,145 @@ def electionStatistics():
     if (request.accept_mimetypes.best == "application/json"):
         conn = get_db()
         cursor = conn.cursor()
-        cursor.execute("select n.name, c.votes, a.position from candidates c, appicants a, applies_for f, voters v, nitc_students n where c.application_no = a.application_no and a.application_no = f.application_no and f.roll_no = v.roll_no and v.roll_no = n.roll_no group by a.position")
+        cursor.execute("SELECT roll_no, name, position, votes \
+                        FROM (((SELECT application_no, votes FROM candidates)q1 \
+                            NATURAL JOIN (SELECT application_no, position FROM applicants)q2) \
+                                NATURAL JOIN (select application_no,roll_no from applies_for)q3)q4 \
+                                    NATURAL JOIN (select name, roll_no from nitc_students)q5 \
+                        GROUP BY position, roll_no, name, votes \
+                        ORDER BY votes desc")
         candidates = cursor.fetchall()
         votes = []
-        pos = candidates[0][2]
-        ind = []
-        for candidate in candidates:
-            if pos == candidate[2]:
-                ind.append(dict(name = candidate[0], votes = candidate[1]))
-            else:
-                votes.append(dict(position = pos))
-                pos = candidate[2]
-        conn.commit()
+        if (len(candidates)>0):  
+            pos = candidates[0][2]
+            ind = []
+            for candidate in candidates:
+                if pos == candidate[2]:
+                    ind.append(dict(rollNo = candidate[0], name = candidate[1], votes = candidate[3]))
+                else:
+                    votes.append(dict(position = pos, candidates = ind))
+                    ind = []
+                    pos = candidate[2]
+                    ind.append(dict(rollNo = candidate[0], name = candidate[1], votes = candidate[3]))
+            
+            if(len(ind)>0):
+                votes.append(dict(position = pos, candidates = ind))
+
+        cursor.execute("select count(*) from voters");
+        totalVoters = cursor.fetchone()[0];
+        cursor.execute("select count(*) from voters where voting_status=%s", (True,));
+        voted = cursor.fetchone()[0]
+
         conn.close()
-        return jsonify(dict(electionStats = votes))
+        return jsonify(dict(allCandidates = votes, voters=dict(total=totalVoters,voted=voted)))
     else:
         return "invalid request", 404
         
 
+@bp.route('/get-site-status', methods=["GET"])
+@admin_required
+def getSiteStatus():
+    if (request.accept_mimetypes.best == "application/json"):
+        return jsonify(dict(applications=current_app.config['APPLICATIONS'], voting=current_app.config['VOTING']))
+    else:
+        return "invalid request", 404
+
+@bp.route('/change-site-status', methods=["POST"])
+@admin_required
+def changeSiteStatus():
+    if (request.accept_mimetypes.best == "application/json"):
+       try:
+            method = request.json.get('method')
+            newAppState = current_app.config['APPLICATIONS']
+            newVoteState = current_app.config['VOTING']
+            if (method == "manual"):
+                newAppState['status'] = False
+                newAppState['open'] = None
+                newAppState['close'] = None
+                newVoteState['status'] = False
+                newVoteState['open'] = None
+                newVoteState['close'] = None
+                toOpen = request.json.get('toOpen')
+                if (toOpen == "applications"):
+                    newAppState['status'] = True
+                elif (toOpen == "voting"):
+                    newVoteState['status'] = True
+
+            elif (method == "automatic"):
+                appOpen = request.json.get('appOpen')
+                appClose = request.json.get('appClose')
+                voteOpen = request.json.get('voteOpen')
+                voteClose = request.json.get('voteClose')
+                if (appOpen):
+                    appOpen = datetime.strptime(appOpen[:-5], "%Y-%m-%dT%H:%M:%S")
+                else:
+                    appOpen = newAppState['open']
+                if (appClose):
+                    appClose = datetime.strptime(appClose[:-5], "%Y-%m-%dT%H:%M:%S")
+                else:
+                    appClose = newAppState['close']
+                if (voteOpen):
+                    voteOpen = datetime.strptime(voteOpen[:-5], "%Y-%m-%dT%H:%M:%S")
+                else:
+                    voteOpen = newVoteState['open']
+                if (voteClose):
+                    voteClose = datetime.strptime(voteClose[:-5], "%Y-%m-%dT%H:%M:%S")
+                else:
+                    voteClose = newVoteState['close']
+
+                currentDateTime = datetime.utcnow()
+                if (appOpen):
+                    if (appOpen < currentDateTime):
+                        return {"msg":"Bad application open time."}, 200
+                if (appClose):
+                    if (appOpen and appClose < appOpen):
+                        return {"msg":"Bad application close time."}, 200
+                    elif (appClose < currentDateTime):
+                        return {"msg":"Bad application close time."}, 200
+                        
+                if (voteOpen):
+                    if (appClose and voteOpen < appClose):
+                        return {"msg":"Bad voting open time."}, 200       
+                    elif (appOpen):
+                        if (voteOpen < appOpen):
+                            return {"msg":"Bad voting open time."}, 200
+                        elif (not appClose):
+                            appClose = voteOpen
+                    elif (voteOpen < currentDateTime):
+                        return {"msg":"Bad voting open time."}, 200
 
 
+                if (voteClose):
+                    if (voteOpen and voteClose < voteOpen):
+                        return {"msg":"Bad voting close time."}, 200
+                    elif (appClose):
+                        if (voteClose < appClose):
+                            return {"msg":"Bad voting close time."}, 200
+                        elif (not voteOpen):
+                            voteOpen = appClose
+                    elif (appOpen):
+                        return {"msg":"Bad voting close time."}, 200
+                    elif (voteClose < currentDateTime):
+                        return {"msg":"Bad voting close time."}, 200
+
+                newAppState['status'] = "Automatic"
+                newAppState['open'] = appOpen
+                newAppState['close'] = appClose
+                newVoteState['status'] = "Automatic"
+                newVoteState['open'] = voteOpen
+                newVoteState['close'] = voteClose
+
+                current_app.config['APPLICATIONS'] = newAppState
+                current_app.config['VOTING'] = newVoteState
+
+            elif method == "close":
+                current_app.config['APPLICATIONS'] = dict(status=False,open = None, close = None)
+                current_app.config['VOTING'] = dict(status=False,open = None, close = None)
+            return "OK", 200
+       except ValueError or AttributeError:
+           return "Invalid request format", 400
+      
+        
+    else:
+        return "invalid request", 404
 

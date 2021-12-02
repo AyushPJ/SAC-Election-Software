@@ -59,3 +59,70 @@ code {
 .apps-waiting{
   background-color:rgb(255, 255, 255);
 }
+
+.form-switch.form-switch-lg {
+  margin-bottom: 1.5rem; /* JUST FOR STYLING PURPOSE */
+}
+
+.form-switch.form-switch-lg .form-check-input {
+  height: 2rem;
+  width: calc(3rem + 1.75rem);
+  border-radius: 4rem;
+}
+
+.flex-col-space-between {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.flex-col-space-evenly {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+
+.form-switch.form-switch-md {
+  margin-bottom: 1rem;
+}
+
+.form-switch.form-switch-md .form-check-input:checked {
+  border-color: rgb(8, 143, 148);
+  background-color: rgb(83, 206, 206);
+  
+}
+
+.form-switch.form-switch-md .form-check-input {
+  height: 1.5rem;
+  width: calc(2rem + 1.75rem);
+  border-radius: 3rem;
+  border-color: rgb(170, 117, 194);
+  background-color: rgb(214, 166, 223);
+}
+
+.form-switch.form-switch-md .form-check-input:disabled {
+  border-color: grey;
+  background-color: white;
+}
+
+.access-cntl-tab{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  height: 100%;
+}
+
+.access-cntl-tab > div {
+  margin: 20px 0px;
+}
+
+.manual-app-text {
+  color: rgb(170, 117, 194)
+}
+
+.manual-vote-text {
+  color: rgb(8, 143, 148)
+}
+
+.disabld{
+  color: gray;
+}

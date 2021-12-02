@@ -18,7 +18,8 @@ def create_app():
         SECRET_KEY = secrets['SECRET_KEY'],
         GOOGLE_CLIENT_ID = secrets['GOOGLE_CLIENT_ID'],
         GOOGLE_CLIENT_SECRET = secrets['GOOGLE_CLIENT_SECRET'],
-        
+        APPLICATIONS = dict(status=False,open = None, close = None), #status = False/True/Automatic
+        VOTING = dict(status=False,open = None, close = None) #status = False/True/Automatic
     )
     app.secret_key = app.config['SECRET_KEY']
     

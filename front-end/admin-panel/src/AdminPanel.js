@@ -1,11 +1,12 @@
 import './App.css';
 import { Fragment, Component } from 'react';
 import { Container, Nav, Tab, Col, Row, ToastContainer, Toast } from 'react-bootstrap'
-import axios from 'axios'
 import Navbar from './Navbar';
 import AddRemPosts from './AddRemPosts';
 import ModVoters from './ModVoters';
 import ViewApps from './ViewApps';
+import AccessCntl from './AccessCntl';
+import ElecStats from './ElecStats';
 
 class AdminPanel extends Component {
 
@@ -17,9 +18,6 @@ class AdminPanel extends Component {
     this.toastAlertMessage = "";
   }
 
-  componentDidMount() {
-
-  }
 
   updateState(prop, val) {
     let newState = Object.assign({}, this.state);
@@ -70,19 +68,19 @@ class AdminPanel extends Component {
               <Col sm={9}>
                 <Tab.Content>
                   <Tab.Pane eventKey="elecStats">
-                    asdsad
+                    <ElecStats />
                   </Tab.Pane>
                   <Tab.Pane eventKey="accessCntl">
-                    asdasdasd
+                    <AccessCntl showToastAlert={this.state.showToastAlert} setShowToastAlert={(val) => this.updateState("showToastAlert", val)} setToastAlertMessage={(msg) => this.setToastAlertMessage(msg)} />
                   </Tab.Pane>
                   <Tab.Pane eventKey="addRemPosts">
-                    <AddRemPosts showToastAlert={this.state.showToastAlert} setShowToastAlert={(val) => this.updateState("showToastAlert", val)} setToastAlertMessage={(msg)=>this.setToastAlertMessage(msg)} />
+                    <AddRemPosts showToastAlert={this.state.showToastAlert} setShowToastAlert={(val) => this.updateState("showToastAlert", val)} setToastAlertMessage={(msg) => this.setToastAlertMessage(msg)} />
                   </Tab.Pane>
                   <Tab.Pane eventKey="modVoters">
-                    <ModVoters showToastAlert={this.state.showToastAlert} setShowToastAlert={(val) => this.updateState("showToastAlert", val)} setToastAlertMessage={(msg)=>this.setToastAlertMessage(msg)} />
+                    <ModVoters showToastAlert={this.state.showToastAlert} setShowToastAlert={(val) => this.updateState("showToastAlert", val)} setToastAlertMessage={(msg) => this.setToastAlertMessage(msg)} />
                   </Tab.Pane>
                   <Tab.Pane eventKey="viewApps">
-                    <ViewApps showToastAlert={this.state.showToastAlert} setShowToastAlert={(val) => this.updateState("showToastAlert", val)} setToastAlertMessage={(msg)=>this.setToastAlertMessage(msg)} />
+                    <ViewApps showToastAlert={this.state.showToastAlert} setShowToastAlert={(val) => this.updateState("showToastAlert", val)} setToastAlertMessage={(msg) => this.setToastAlertMessage(msg)} />
                   </Tab.Pane>
                 </Tab.Content>
               </Col>
