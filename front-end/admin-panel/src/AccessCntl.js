@@ -13,8 +13,8 @@ class AccessCntl extends Component {
             autoSetApp: false,
             autoSetVote: false,
             appStatus: null,
-            votingStatus: null
-
+            votingStatus: null,
+            currentDT: null
         };
         this.manualSwitchRef = createRef(null);
         this.autoAppOpen = createRef(null);
@@ -25,6 +25,7 @@ class AccessCntl extends Component {
 
     componentDidMount() {
         this.fetchSiteStatus();
+        this.updateState('currentDT', new Date().toISOString().substring(0,16));
     }
 
     fetchSiteStatus() {
@@ -149,7 +150,6 @@ class AccessCntl extends Component {
 
 
     render() {
-
         let methods = null;
         let manual = null;
         let automatic = null;
@@ -190,10 +190,10 @@ class AccessCntl extends Component {
                             label="Opening Datetime"
                             className="mb-2"
                         >
-                            <Form.Control ref={this.autoAppOpen} type="datetime-local" />
+                            <Form.Control ref={this.autoAppOpen} type="datetime-local" min={this.state.currentDT}/>
                         </FloatingLabel>
                         <FloatingLabel label="Closing Datetime">
-                            <Form.Control ref={this.autoAppClose} type="datetime-local" />
+                            <Form.Control ref={this.autoAppClose} type="datetime-local" min={this.state.currentDT}/>
                         </FloatingLabel>
                     </Fragment>;
 
@@ -203,10 +203,10 @@ class AccessCntl extends Component {
                             label="Opening Datetime"
                             className="mb-2"
                         >
-                            <Form.Control ref={this.autoVoteOpen} type="datetime-local" />
+                            <Form.Control ref={this.autoVoteOpen} type="datetime-local" min={this.state.currentDT}/>
                         </FloatingLabel>
                         <FloatingLabel label="Closing Datetime">
-                            <Form.Control ref={this.autoVoteClose} type="datetime-local" />
+                            <Form.Control ref={this.autoVoteClose} type="datetime-local" min={this.state.currentDT}/>
                         </FloatingLabel>
                     </Fragment>;
                 automatic = <Fragment>

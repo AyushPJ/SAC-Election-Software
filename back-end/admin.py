@@ -31,7 +31,6 @@ def addPosts():
             except IntegrityError:
                 return {"msg": "Post already exists"}, 200
             conn.commit()
-            conn.close()
             return "OK", 200
         else:
             raise NotFound()
@@ -47,7 +46,6 @@ def removePosts():
             for post in posts:
                 cursor.execute("delete from posts where position = %s", (post,))
             conn.commit()
-            conn.close()
             return "OK", 200
         else:
             raise NotFound()
@@ -61,7 +59,6 @@ def fetchStudent():
         cursor = conn.cursor()
         cursor.execute("select * from nitc_students where roll_no = %s", (rollNo,))
         student = cursor.fetchone()
-        conn.close()
         if(student == None):
             return {"msg":"Does not exist"}, 200
         else:
@@ -81,7 +78,6 @@ def changeEligibility():
         cursor.execute("delete from users where roll_no = %s", (rollNo,))
         cursor.execute("update nitc_students set eligibility_status=%s, admin_id = %s where roll_no = %s", (eligibility, adminID, rollNo))
         conn.commit()
-        conn.close()
         return "OK", 200
     else:
         raise NotFound()
@@ -106,7 +102,6 @@ def getApplications(post):
             student = cursor.fetchone()
             apps.append(dict(rollNo = student[0], name= student[1], phoneNo = student[2], email = student[3], applicationNo = application[0], position=application[1], cgpa=application[2]))
         conn.commit()
-        conn.close()
         return jsonify(dict(applications = apps))
     else:
         raise NotFound()
@@ -130,7 +125,6 @@ def changeStatus():
                 cursor.execute("update applicants set application_status=%s, admin_id=%s where application_no = %s", ("rejected", adminID, appNo))
 
         conn.commit()
-        conn.close()
         return "OK", 200
     else:
         raise NotFound()
@@ -169,8 +163,6 @@ def electionStatistics():
         totalVoters = cursor.fetchone()[0];
         cursor.execute("select count(*) from voters where voting_status=%s", (True,));
         voted = cursor.fetchone()[0]
-
-        conn.close()
         return jsonify(dict(allCandidates = votes, voters=dict(total=totalVoters,voted=voted)))
     else:
         raise NotFound()
@@ -210,33 +202,38 @@ def changeSiteStatus():
                 appClose = request.json.get('appClose')
                 voteOpen = request.json.get('voteOpen')
                 voteClose = request.json.get('voteClose')
-                if (appOpen):
-                    appOpen = datetime.strptime(appOpen[:-5], "%Y-%m-%dT%H:%M:%S")
-                else:
-                    appOpen = newAppState['open']
-                if (appClose):
-                    appClose = datetime.strptime(appClose[:-5], "%Y-%m-%dT%H:%M:%S")
-                else:
-                    appClose = newAppState['close']
-                if (voteOpen):
-                    voteOpen = datetime.strptime(voteOpen[:-5], "%Y-%m-%dT%H:%M:%S")
-                else:
-                    voteOpen = newVoteState['open']
-                if (voteClose):
-                    voteClose = datetime.strptime(voteClose[:-5], "%Y-%m-%dT%H:%M:%S")
-                else:
-                    voteClose = newVoteState['close']
-
                 currentDateTime = datetime.utcnow()
                 if (appOpen):
-                    if (appOpen < currentDateTime):
+                    appOpen = datetime.strptime(appOpen[:-5], "%Y-%m-%dT%H:%M:%S")
+                    if (appOpen <currentDateTime):
                         return {"msg":"Bad application open time."}, 200
+                else:
+                    appOpen = newAppState['open']
+
+                if (appClose):
+                    appClose = datetime.strptime(appClose[:-5], "%Y-%m-%dT%H:%M:%S")
+                    if (appClose <currentDateTime):
+                        return {"msg":"Bad application close time."}, 200
+                else:
+                    appClose = newAppState['close']
+
+                if (voteOpen):
+                    voteOpen = datetime.strptime(voteOpen[:-5], "%Y-%m-%dT%H:%M:%S")
+                    if (voteOpen<currentDateTime):
+                        return {"msg":"Bad voting open time."}, 200  
+                else:
+                    voteOpen = newVoteState['open']
+
+                if (voteClose):
+                    voteClose = datetime.strptime(voteClose[:-5], "%Y-%m-%dT%H:%M:%S")
+                    if (voteClose < currentDateTime):
+                        return {"msg":"Bad voting close time."}, 
+                else:
+                    voteClose = newVoteState['close']
+                
                 if (appClose):
                     if (appOpen and appClose < appOpen):
-                        return {"msg":"Bad application close time."}, 200
-                    elif (appClose < currentDateTime):
-                        return {"msg":"Bad application close time."}, 200
-                        
+                        return {"msg":"Bad application close time."}, 200        
                 if (voteOpen):
                     if (appClose and voteOpen < appClose):
                         return {"msg":"Bad voting open time."}, 200       
@@ -245,9 +242,6 @@ def changeSiteStatus():
                             return {"msg":"Bad voting open time."}, 200
                         elif (not appClose):
                             appClose = voteOpen
-                    elif (voteOpen < currentDateTime):
-                        return {"msg":"Bad voting open time."}, 200
-
 
                 if (voteClose):
                     if (voteOpen and voteClose < voteOpen):
@@ -258,8 +252,6 @@ def changeSiteStatus():
                         elif (not voteOpen):
                             voteOpen = appClose
                     elif (appOpen):
-                        return {"msg":"Bad voting close time."}, 200
-                    elif (voteClose < currentDateTime):
                         return {"msg":"Bad voting close time."}, 200
 
                 newAppState['status'] = "Automatic"

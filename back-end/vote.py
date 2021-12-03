@@ -9,6 +9,7 @@ from .utils import student_required, voting_required
 from . import db
 bp = Blueprint("vote", "vote", url_prefix="/vote")
 
+
 @bp.route('/voting-page')
 @student_required
 @voting_required
@@ -64,7 +65,6 @@ def submitVote():
             if validVote == True:
                 cursor.execute("update voters set voting_status = true where roll_no = %s", (current_user.rollNo,))
                 conn.commit()
-                conn.close()
                 return "OK", 200
             else:
                 conn.close()

@@ -51,27 +51,41 @@ def student_required(func):
     return student_wrapper
 
 
+def applicationsPageOpen():
+    appStatus = current_app.config['APPLICATIONS']
+    if appStatus['status'] == "Automatic":
+        currentDT = datetime.utcnow()
+        if((appStatus['open'] and appStatus['open'] <= currentDT) ):
+            if ((appStatus['close'] and currentDT <= appStatus['close']) or not appStatus['close']):
+                    return True
+        elif (not appStatus['open']):
+            if ((appStatus['close'] and currentDT <= appStatus['close'])):
+                return True
+    elif appStatus['status']:
+        return True
+    return False
+
+def votingPageOpen():
+    voteStatus = current_app.config['VOTING']
+    if voteStatus['status'] == "Automatic":
+        currentDT = datetime.utcnow()
+        if((voteStatus['open'] and voteStatus['open'] <= currentDT) ):
+            if ((voteStatus['close'] and currentDT <= voteStatus['close']) or not voteStatus['close']):
+                    return True
+        elif (not voteStatus['open']):
+            if ((voteStatus['close'] and currentDT <= voteStatus['close'])):
+                return True
+    elif voteStatus['status']:
+        return True
+    return False
+
+
 def voting_required(func):
     def voting_wrapper(*args, **kwargs):
-        voteStatus = current_app.config['VOTING']
-        voterStatus = current_user.get_votingStatus();
-        if not voteStatus['status']:
-            return render_template("error.html",msg="Voting is now closed.", title="Not Allowed", statusCode="401"), 401
-        elif voteStatus['status'] == "Automatic":
-            currentDT = datetime.utcnow()
-            if((voteStatus['open'] and voteStatus['open'] <= currentDT) or not voteStatus['open']):
-                if ((voteStatus['close'] and currentDT <= voteStatus['close']) or not voteStatus['close']):
-                    if not voterStatus:
-                        return func(*args, **kwargs)
 
-                    else:
-                        if (request.accept_mimetypes.best == "application/json"):
-                            return render_template("error.html",msg="You are allowed to vote only once.", title="Not Allowed", statusCode="401"), 401
-                        else:
-                            return render_template('vote-successful.html')
-            
-            return render_template("error.html",msg="Voting is now closed.", title="Not Allowed", statusCode="401"), 401
-        elif voteStatus['status']:
+        voterStatus = current_user.get_votingStatus();
+        status = votingPageOpen()
+        if (status):
             if not voterStatus:
                 return func(*args, **kwargs)
             else:
@@ -79,23 +93,20 @@ def voting_required(func):
                     return render_template("error.html",msg="You are allowed to vote only once.", title="Not Allowed", statusCode="401"), 401
                 else:
                     return render_template('vote-successful.html')
+                
+            
+        return render_template("error.html",msg="Voting is now closed.", title="Not Allowed", statusCode="401"), 401
 
     voting_wrapper.__name__ = func.__name__
     return voting_wrapper
 
 def application_required(func):
     def application_wrapper(*args, **kwargs):
-        appStatus = current_app.config['APPLICATIONS']
-        if not appStatus['status']:
-            return render_template("error.html",msg="Applications are now closed.", title="Not Allowed", statusCode="401"), 401
-        elif appStatus['status'] == "Automatic":
-            currentDT = datetime.utcnow()
-            if((appStatus['open'] and appStatus['open'] <= currentDT) or not appStatus['open']):
-                if ((appStatus['close'] and currentDT <= appStatus['close']) or not appStatus['close']):
-                    return func(*args, **kwargs)
-            else:
-                return render_template("error.html",msg="Applications are now closed.", title="Not Allowed", statusCode="401"), 401
-        elif appStatus['status']:
+        status = applicationsPageOpen()
+        if status:
             return func(*args, **kwargs)
+        else:
+            return render_template("error.html",msg="Applications are now closed.", title="Not Allowed", statusCode="401"), 401
+            
     application_wrapper.__name__ = func.__name__
     return application_wrapper

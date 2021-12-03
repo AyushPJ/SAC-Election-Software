@@ -101,7 +101,6 @@ def submitApplication():
         appNo = cursor.fetchone()[0]
         cursor.execute("insert into applies_for(roll_no, application_no) values(%s,%s)", (rollNo, appNo))
         conn.commit()
-        conn.close()
         return "OK", 200
     else:
         raise NotFound()
