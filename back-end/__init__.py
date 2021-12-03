@@ -1,10 +1,9 @@
-from flask import Flask, request, redirect
+from flask import Flask
 from flask.helpers import url_for
 from flask.templating import render_template
-from flask.typing import StatusCode
 from flask_cors import CORS
-from flask_login import LoginManager, current_user
-from flask_login.utils import login_fresh, login_required
+from flask_login import LoginManager
+import os
 
 
 
@@ -23,6 +22,7 @@ def create_app():
         APPLICATIONS = dict(status=False,open = None, close = None), #status = False/True/Automatic
         VOTING = dict(status=False,open = None, close = None) #status = False/True/Automatic
     )
+
 
     app.secret_key = app.config['SECRET_KEY']
     

@@ -1,0 +1,34 @@
+This is the source code of the SAC Election Software developed by Group 27 for the DBMS course. It is a full stack development project designed to make SAC elections seamless and easy on both users and administrators without compromising on legitimacy and security
+
+TECH STACK SUMMARY
+
+database:
+postgresSQL (psql)
+database relations:
+candidates - for the candidates that have been approved to contest in the elections
+applies_for - connect application with the student
+votes_for - connect each vote for each candidate with the student
+applicants - for applications submitted by students to contest in the elections
+voters - for all those students eligible to participate in voting/contesting in the elections
+nitc_students - inherited from the database of all the students of NITC, selecting a subset of the attributes like roll no., name, nitc email, and phone no. and an additional attribute to determine eligibility to participate in the elections
+admins - for all the administrators of the database. left untouched after hosting the app.
+users - for storing identify information of all users (admin and students) who use the app
+posts - for storing SAC posts open to contest in the elections 
+
+back-end:
+developed using flask(python). Packages used provided in the requirements.txt file. Comprises of the following modules:
+1. __init.py__ - initializing and configuring the app. linking the modules.
+2. admin.py - to serve administrator requests
+3. applications.py - requests related to applications from applications page for students
+4. auth.py - authorization module. It authorizes and authenticates users on logging in. Also logs them out
+5. db.py - database connection, initializing with dummy data
+6. student.py - redirecting students on logging in to correct page (applications/voting) and fetching election statistics for open view.
+7. user.py - defines the user model used by the app to track its users and provides functions for verifying voting status administrator rights, etc.
+8. utils.py - helper functions used throughout the app like student/admin exclusive access, testing if application/voting page is open
+9. vote.py - get candidates contesting in the elections and validate votes of users for/from the voting page for students
+
+front-end:
+developed using reactJS. packages used provided in the package-lock.json under each subdirectory. Each of the subdirectories corresponds to an single page application:
+1. admin-panel: page which provides an interface for all admin related functions including modifying posts, changing eligibility, accepting/rejecting applications and locking/unlocking access to the voting/application pages
+2. applications: applications page for students where students can check the status of their application and submit new applications to contest for elections
+3. voting: voting page for students where students can see all the candidates and pick a candidate for each post and cast their vote.

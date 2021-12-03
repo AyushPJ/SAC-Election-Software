@@ -3,7 +3,7 @@ import './App.css';
 
 import './App.css';
 import { Fragment, Component } from 'react';
-import { Tab, Tabs, Button, Container, Row, Col } from 'react-bootstrap'
+import { Tab, Tabs, Button, Container} from 'react-bootstrap'
 import axios from 'axios'
 import AppForm from './AppForm';
 import Navbar from './Navbar';

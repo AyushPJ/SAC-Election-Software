@@ -31,6 +31,8 @@ def init_db():
     cur = db.cursor()
     cur.execute(sql_code)
     
+    fakeStudents = []
+
     for i in range(20):
         name = fake.name()
         rollNo = fake.unique.random_int(min=170000, max=219999)
@@ -40,7 +42,10 @@ def init_db():
         nitc_email = fname.lower()+'_'+rollNo.lower()+'@nitc.ac.in'
         phone_no = fake.phone_number()[-10:]
         cur.execute("insert into nitc_students(roll_no,name,phone_no,nitc_email) values (%s,%s,%s,%s)",(rollNo,name,phone_no,nitc_email))
+        cur.execute("insert into voters(roll_no) values (%s)",(rollNo,))
+        fakeStudents.append(rollNo)
     
+
     import json
 
     testDataJSON = open('sql/test_data.json', 'r')
@@ -56,7 +61,26 @@ def init_db():
 
     for position in testData['posts']:
         cur.execute("insert into posts(position) values (%s)",(position,))
+    
+    posts = testData['posts']
+    for fakeStudent in fakeStudents:
+        post = random.choice(posts)
+        cgpa = round(random.uniform(6.0, 10.0),2)
+        if (random.random()>0.5):
+            cur.execute("insert into applicants(position, cgpa, application_status, admin_id) values (%s,%s,%s,%s)",(post,cgpa,"accepted",1))
+            cur.execute("select application_no from applicants order by application_no desc limit 1")
+            appNo = cur.fetchone()[0]
+            cur.execute("insert into applies_for(roll_no, application_no) values (%s,%s)",(fakeStudent,appNo))
+            cur.execute("insert into candidates(application_no) values (%s)",(appNo,))
+        else:
+            cur.execute("insert into applicants(position, cgpa, application_status) values (%s,%s,%s)",(post,cgpa,"waiting"))
+            cur.execute("select application_no from applicants order by application_no desc limit 1")
+            appNo = cur.fetchone()[0]
+            cur.execute("insert into applies_for(roll_no, application_no) values (%s,%s)",(fakeStudent,appNo))
+
+
         
+
 
     cur.close()
     db.commit()

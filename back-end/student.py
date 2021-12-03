@@ -46,13 +46,13 @@ def electionResults():
                         GROUP BY position, roll_no, name, votes \
                         ORDER BY votes desc")
         candidates = cursor.fetchall()
-        
         if (len(candidates)>0):  
             pos = candidates[0][2]
             ind = []
             for candidate in candidates:
                 if pos == candidate[2]:
                     ind.append(dict(rollNo = candidate[0], name = candidate[1], votes = candidate[3]))
+
                 else:
                     votes.append(dict(position = pos, candidates = ind))
                     ind = []
@@ -61,7 +61,6 @@ def electionResults():
             
             if(len(ind)>0):
                 votes.append(dict(position = pos, candidates = ind))
-
     cursor.execute("select count(*) from voters");
     totalVoters = cursor.fetchone()[0];
     cursor.execute("select count(*) from voters where voting_status=%s", (True,));
