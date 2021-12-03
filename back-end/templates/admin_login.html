@@ -16,6 +16,7 @@
   background: -o-linear-gradient(to top, #76b852, #8DC26F);
   background: linear-gradient(to top, #76b852, #8DC26F);
   background-size: cover;
+  text-align: center;
   background-attachment: fixed;
   font-family: 'Roboto', sans-serif;
   /* background: ghostwhi; */
@@ -35,12 +36,19 @@
   letter-spacing: 4px;
   font-family: 'Roboto', sans-serif;
 }
+h3 {
+    color: whitesmoke;
+}
+img {
+    width: 40%;
+}
     </style>
 </head>
 
 <body>
     <div class="center">
-    <h1>Admin</h1>
+        <img src="https://upload.wikimedia.org/wikipedia/en/d/d0/National_Institute_of_Technology%2C_Calicut_Logo.png" alt="">
+        <h3>LOGIN AS ADMIN</h3><br>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <div id="g_id_onload" data-client_id="226203014298-ap9uum3jo1pvkt6vqhdn9ker8pno0iqr.apps.googleusercontent.com"
         data-context="signin" data-ux_mode="popup" data-login_uri="http://localhost:5000/auth/login/callback?user-class=admin&next={{next}}" data-nonce=""

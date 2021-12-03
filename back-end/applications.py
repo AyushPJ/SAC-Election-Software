@@ -1,11 +1,16 @@
-from flask import Blueprint, app, request, jsonify
-from werkzeug.utils import append_slash_redirect
-from .utils import student_required
+from flask import Blueprint, app, request, jsonify, redirect
+from .utils import student_required, application_required
 from .db import get_db
 from flask_login import current_user
-
+from werkzeug.exceptions import NotFound
 
 bp = Blueprint("applications", "applications", url_prefix="/applications")
+
+@bp.route('/applications-page')
+@student_required
+@application_required
+def getApplicationsPage():
+    return redirect("http://localhost:3001")
 
 @bp.route("/get-posts")
 def getPosts(isHTTP=True):
@@ -18,9 +23,12 @@ def getPosts(isHTTP=True):
         return jsonify(dict(posts = posts))
     elif (not isHTTP):
         return posts
+    else:
+        raise NotFound()
 
 @bp.route("/get")
 @student_required
+@application_required
 def getApplications():
     if (request.accept_mimetypes.best == "application/json"):
         conn = get_db()
@@ -49,10 +57,11 @@ def getApplications():
         return jsonify(dict(applications = dict(accepted=acceptedApps, rejected=rejectedApps, waiting=waitingApps)))
         
     else:
-        return "invalid request", 404
+        raise NotFound()
 
 @bp.route("/submit", methods=["POST"])
 @student_required
+@application_required
 def submitApplication():
     if (request.accept_mimetypes.best == "application/json"):
         cgpa = request.json.get('cgpa')
@@ -95,4 +104,4 @@ def submitApplication():
         conn.close()
         return "OK", 200
     else:
-        return "invalid request", 404
+        raise NotFound()

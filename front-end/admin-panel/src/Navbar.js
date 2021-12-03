@@ -59,7 +59,7 @@ class UserTab extends Component {
     }
 
     logoutUser() {
-        window.location.replace("/auth/logout");
+        window.location.replace(process.env.REACT_APP_API_SERVER + "/auth/logout");
     }
 
     getUserDetails() {

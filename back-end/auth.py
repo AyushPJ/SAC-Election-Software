@@ -5,6 +5,7 @@ from flask import request, render_template, redirect, url_for
 from flask_login import login_user, logout_user, login_required, current_user
 from google.oauth2 import id_token
 from google.auth.transport import requests
+from werkzeug.exceptions import NotFound
 
 bp = Blueprint("auth", "auth", url_prefix="/auth")
 
@@ -65,22 +66,22 @@ def loginCallback():
                 if userClass == "student":
                     retCode = User.createStudent(id=id_, name=name, email=email, profilePic=profilePic)
                     if retCode == -1:
-                        return "Student not in database.", 400
+                        return render_template('error.html', msg="You are not a registered student.", statusCode="401", title="Not Allowed"), 401
                     elif retCode == -2:
-                        return render_template('ineligible.html')
+                        return render_template('error.html', msg="You are not eligible to participate in the elections.", statusCode="401", title="Not Allowed"), 401
                 elif userClass == "admin":
                     retCode = User.createAdmin(id=id_, name=name, email=email, profilePic=profilePic)
                     if retCode == -1:
-                        return "Admin not in database.", 400
+                        return render_template('error.html', msg="You are not a registered admin.", statusCode="401", title="Not Allowed"), 401
                 else:
                     return "Invalid request format", 400
             
             user = User.get(id_)
 
             if user.admin and userClass=="student":
-                return "Not a student", 400
+                return render_template('error.html', msg="You are not a registered student.", statusCode="401", title="Not Allowed"), 401
             elif not user.admin and userClass=="admin":
-                return "Not an admin", 400
+                return render_template('error.html', msg="You are not a registered admin.", statusCode="401", title="Not Allowed"), 401
 
             # Send user back to homepage
             login_user(user)
@@ -88,29 +89,29 @@ def loginCallback():
                 if user.admin:
                     next_url = url_for('admin.index')
                 else:
-                    next_url = url_for('student.dashboard')
+                    next_url = url_for('student.index')
             else:
                 if request.args.get('next') == '':
                     if user.admin:
                         next_url = url_for('admin.index')
                     else:
-                        next_url = url_for('student.dashboard')
+                        next_url = url_for('student.index')
                 else:
                     from .utils import get_safe_redirect
                     next_url = get_safe_redirect(request.args.get('next'))
             return redirect(next_url)
 
         else:
-            return "User email not available or not verified by Google.", 400
+            return render_template('error.html', msg="Account not verified by Google.", statusCode="400", title="Bad Request"), 400
 
     except ValueError:
-        return "Invalid token.", 400
+        return render_template('error.html', msg="Invalid token.", statusCode="400", title="Bad Request"), 400
+
 
 @bp.route("/logout")
 @login_required
 def logout():
     logout_user()
-    flash("Successfully logged out")
 
     if 'next' not in request.args:
         next_url = url_for('index')
@@ -126,6 +127,7 @@ def logout():
 @bp.route("/get-user")
 @login_required
 def getUser():
-     if (request.accept_mimetypes.best == "application/json"):
-         return jsonify(dict(user = dict(name=current_user.name, rollNo=current_user.rollNo, email=current_user.email, profilePic=current_user.profilePic)))
-         
+    if (request.accept_mimetypes.best == "application/json"):
+        return jsonify(dict(user = dict(name=current_user.name, rollNo=current_user.rollNo, email=current_user.email, profilePic=current_user.profilePic)))
+    else:
+        raise NotFound()

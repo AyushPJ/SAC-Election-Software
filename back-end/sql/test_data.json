@@ -5,14 +5,60 @@
             "name": "AYUSH PETER.JUNIOR",
             "phone_no": "1234567890",
             "nitc_email": "ayush_b190921cs@nitc.ac.in"
+        },
+        {
+            "roll_no": "B190347CS",
+            "name": "SAINADH JAMMIGUNPALA",
+            "phone_no": "1234567891",
+            "nitc_email": "sainadh_b190347cs@nitc.ac.in"
+        },
+        {
+            "roll_no": "B190182CS",
+            "name": "SANATH REDDY.PAGALA",
+            "phone_no": "1234567892",
+            "nitc_email": "sanath_b190182cs@nitc.ac.in"
+        },
+        {
+            "roll_no": "B191086CS",
+            "name": "VENKATANAGASUDHEER KUMAR.REDDY.PALLETI",
+            "phone_no": "1234567893",
+            "nitc_email": "venkatanagasudheer_b191086cs@nitc.ac.in"
+        },
+        {
+            "roll_no": "B190478CS",
+            "name": "THAPAS P.PRAMOD",
+            "phone_no": "1234567894",
+            "nitc_email": "thapas_b190478cs@nitc.ac.in"
         }
+
+
     ],
     
     "admins": [
         {
             "name": "Ayush",
-            "phone_no": "1234567890",
+            "phone_no": "1234567895",
             "email": "pjayush@gmail.com"
+        },
+        {
+            "name": "Sainadh",
+            "phone_no": "1234567896",
+            "email": "jsainadh2018@gmail.com"
+        },
+        {
+            "name": "Sanath",
+            "phone_no": "1234567897",
+            "email": "sanathpagala@gmail.com"
+        },
+        {
+            "name": "Sudheer",
+            "phone_no": "1234567898",
+            "email": "palletisudheer@gmail.com"
+        },
+        {
+            "name": "Thapas",
+            "phone_no": "1234567899",
+            "email": "thapaspramodp@gmail.com"
         }
     ],
 

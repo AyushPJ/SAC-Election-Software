@@ -22,6 +22,16 @@ class User(UserMixin):
         adminID = cursor.fetchone()[0]
         return adminID
 
+    def get_votingStatus(self):
+        if self.admin:
+            return None
+        from .db import get_db
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT voting_status FROM voters WHERE roll_no = %s", (self.rollNo,))
+        status = cursor.fetchone()[0]
+        return status
+
     @staticmethod
     def get(userID):
         from .db import get_db

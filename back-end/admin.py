@@ -1,12 +1,13 @@
 from flask import Blueprint, app, jsonify
 from flask import request, render_template, current_app
 from flask_login import current_user
-from flask_login.utils import logout_user
 from psycopg2 import IntegrityError
+from werkzeug.utils import redirect
 from .utils import admin_required
 from .db import get_db
 from re import fullmatch
-from datetime import date, datetime
+from datetime import datetime
+from werkzeug.exceptions import NotFound
 
 bp = Blueprint("admin", "admin", url_prefix="/admin")
 
@@ -14,19 +15,7 @@ bp = Blueprint("admin", "admin", url_prefix="/admin")
 @bp.route('/')
 @admin_required
 def index():
-    return render_template('admin/index.html')
-
-@bp.route('/test')
-@admin_required
-def test():
-    return (
-        "<p>Hello, {}! You're logged in! Email: {}</p>"
-        "<div><p>Google Profile Picture:</p>"
-        '<img src="{}" alt="Google profile pic"></img></div>'
-        '<a class="button" href="/auth/logout?next=http://localhost:5000/auth/login/admin">Logout</a>'.format(
-            current_user.name, current_user.email, current_user.profilePic
-        )
-    )
+    return redirect("http://localhost:3002")
 
 @bp.route('/posts/add', methods=["POST"])
 @admin_required
@@ -45,7 +34,7 @@ def addPosts():
             conn.close()
             return "OK", 200
         else:
-            return "invalid request", 404
+            raise NotFound()
     
 @bp.route('/posts/remove', methods=["POST"])
 @admin_required
@@ -61,7 +50,7 @@ def removePosts():
             conn.close()
             return "OK", 200
         else:
-            return "invalid request", 404
+            raise NotFound()
 
 @bp.route('/fetch-student', methods=["POST"])
 @admin_required
@@ -78,7 +67,7 @@ def fetchStudent():
         else:
             return jsonify(dict(student = dict(rollNo=student[0], name=student[1], phoneNo=student[2], email=student[3], eligibility=student[4])))
     else:
-        return "invalid request", 404
+        raise NotFound()
 
 @bp.route('/change-eligibility', methods=["POST"])
 @admin_required
@@ -95,7 +84,7 @@ def changeEligibility():
         conn.close()
         return "OK", 200
     else:
-        return "invalid request", 404
+        raise NotFound()
 
 @bp.route('/get-applications/<post>', methods=["GET"])
 @admin_required
@@ -120,7 +109,7 @@ def getApplications(post):
         conn.close()
         return jsonify(dict(applications = apps))
     else:
-        return "invalid request", 404
+        raise NotFound()
 
 
 @bp.route('/change-status', methods=["POST"])
@@ -144,7 +133,7 @@ def changeStatus():
         conn.close()
         return "OK", 200
     else:
-        return "invalid request", 404
+        raise NotFound()
 
 @bp.route('/election-statistics', methods=["GET"])
 @admin_required
@@ -184,7 +173,7 @@ def electionStatistics():
         conn.close()
         return jsonify(dict(allCandidates = votes, voters=dict(total=totalVoters,voted=voted)))
     else:
-        return "invalid request", 404
+        raise NotFound()
         
 
 @bp.route('/get-site-status', methods=["GET"])
@@ -193,7 +182,7 @@ def getSiteStatus():
     if (request.accept_mimetypes.best == "application/json"):
         return jsonify(dict(applications=current_app.config['APPLICATIONS'], voting=current_app.config['VOTING']))
     else:
-        return "invalid request", 404
+        raise NotFound()
 
 @bp.route('/change-site-status', methods=["POST"])
 @admin_required
@@ -292,5 +281,5 @@ def changeSiteStatus():
       
         
     else:
-        return "invalid request", 404
+        raise NotFound()
 

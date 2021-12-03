@@ -1,0 +1,47 @@
+.list-group{
+  max-height: 100rem;
+  margin-bottom: 10px;
+  overflow: scroll;
+  -webkit-overflow-scrolling: touch;
+}
+
+
+.candidates-list{
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 100%;
+  height: 20rem;
+}
+
+.Dp {
+  padding-left: 60px;
+}
+
+.container-flex{
+  display: flex;    
+  flex-direction: column;
+}
+
+.posts-carousel {
+  padding: 50px 0px;
+  margin: auto ;
+  align-self: center;
+  align-content: center;
+}
+
+.review-submit{
+  margin: auto ;
+  align-self: center;
+  align-content: center;
+}
+
+.toast-alerts{
+  position: fixed;
+  width: 500px;
+  height: 200px;
+  margin: auto;
+  top: 5%;
+  left: 0;
+  right: 0;
+}

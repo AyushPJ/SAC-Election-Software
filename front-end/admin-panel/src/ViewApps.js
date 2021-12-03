@@ -36,7 +36,7 @@ class ViewApps extends Component {
             .then((resp) => {
                 let status = [];
                 if (resp.data.applications) {
-                    if (resp.data.applications.length == 0) {
+                    if (resp.data.applications.length === 0) {
                         this.props.setToastAlertMessage("No pending applications.");
                         this.props.setShowToastAlert(true);
                     }
@@ -45,8 +45,9 @@ class ViewApps extends Component {
                             status.push("waiting");
                         });
                         this.updateState("status", status);
-                        this.updateState("applications", resp.data.applications);
+                        
                     }
+                    this.updateState("applications", resp.data.applications);
                 }
             })
             .catch((err) => {

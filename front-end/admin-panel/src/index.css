@@ -5,6 +5,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+   /* cursor: pointer; */
 }
 
 code {
@@ -125,4 +126,8 @@ code {
 
 .disabld{
   color: gray;
+}
+
+.nav-item{
+  cursor: pointer;
 }
