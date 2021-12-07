@@ -5,15 +5,15 @@ TECH STACK SUMMARY
 database:
 postgresSQL (psql)
 database relations:
-candidates - for the candidates that have been approved to contest in the elections
-applies_for - connect application with the student
-votes_for - connect each vote for each candidate with the student
-applicants - for applications submitted by students to contest in the elections
-voters - for all those students eligible to participate in voting/contesting in the elections
-nitc_students - inherited from the database of all the students of NITC, selecting a subset of the attributes like roll no., name, nitc email, and phone no. and an additional attribute to determine eligibility to participate in the elections
-admins - for all the administrators of the database. left untouched after hosting the app.
-users - for storing identify information of all users (admin and students) who use the app
-posts - for storing SAC posts open to contest in the elections 
+1. candidates - for the candidates that have been approved to contest in the elections
+2. applies_for - connect application with the student
+3. votes_for - connect each vote for each candidate with the student
+4. applicants - for applications submitted by students to contest in the elections
+5. voters - for all those students eligible to participate in voting/contesting in the elections
+6. nitc_students - inherited from the database of all the students of NITC, selecting a subset of the attributes like roll no., name, nitc email, and phone no. and an additional attribute to determine eligibility to participate in the elections
+7. admins - for all the administrators of the database. left untouched after hosting the app.
+8. users - for storing identify information of all users (admin and students) who use the app
+9. posts - for storing SAC posts open to contest in the elections 
 
 back-end:
 developed using flask(python). Packages used provided in the requirements.txt file. Comprises of the following modules:

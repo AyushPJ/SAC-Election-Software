@@ -3,6 +3,7 @@ from .utils import student_required, application_required
 from .db import get_db
 from flask_login import current_user
 from werkzeug.exceptions import NotFound
+from psycopg2 import IntegrityError
 
 bp = Blueprint("applications", "applications", url_prefix="/applications")
 
@@ -96,11 +97,14 @@ def submitApplication():
             return {"msg": "accepted"}, 200
         elif (waitingApps > 0):
             return {"msg": "waiting"}, 200
-        cursor.execute("insert into applicants(position, cgpa, application_status) values(%s,%s,%s)", (pos, cgpa, "waiting"))
-        cursor.execute("select application_no from applicants order by application_no desc limit 1");
-        appNo = cursor.fetchone()[0]
-        cursor.execute("insert into applies_for(roll_no, application_no) values(%s,%s)", (rollNo, appNo))
-        conn.commit()
-        return "OK", 200
+        try:
+            cursor.execute("insert into applicants(position, cgpa, application_status) values(%s,%s,%s)", (pos, cgpa, "waiting"))
+            cursor.execute("select application_no from applicants order by application_no desc limit 1");
+            appNo = cursor.fetchone()[0]
+            cursor.execute("insert into applies_for(roll_no, application_no) values(%s,%s)", (rollNo, appNo))
+            conn.commit()
+            return "OK", 200
+        except IntegrityError:
+            return "Invalid request format" , 400
     else:
         raise NotFound()

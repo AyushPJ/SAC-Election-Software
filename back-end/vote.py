@@ -37,7 +37,7 @@ def getCandidates(post):
 def submitVote():
     if (request.accept_mimetypes.best == "application/json"):
         votes = request.json.get('votes')
-        print(votes)
+        # print(votes)
         if votes:
             conn = db.get_db()
             cursor = conn.cursor()

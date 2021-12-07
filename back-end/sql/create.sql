@@ -24,6 +24,10 @@ create table admins(
        email text unique not null
 );
 
+create table posts(
+       position text primary key
+);
+
 create table nitc_students(
        roll_no text primary key,
        name text not null,
@@ -40,7 +44,7 @@ create table voters(
 
 create table applicants(
        application_no serial primary key,
-       position text not null,
+       position text not null references posts(position) on delete cascade,
        cgpa float not null,
        application_status text not null,
        admin_id int default null references admins(admin_id) on delete set null
@@ -60,8 +64,4 @@ create table votes_for(
 create table applies_for(
        roll_no text references voters(roll_no) on delete cascade,
        application_no int primary key references applicants(application_no) on delete cascade
-);
-
-create table posts(
-       position text primary key
 );

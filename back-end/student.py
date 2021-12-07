@@ -10,8 +10,6 @@ from .utils import applicationsPageOpen, votingPageOpen
 bp = Blueprint("student", "student", url_prefix="/student")
 
 
-
-
 @bp.route('/index')
 @student_required
 def index():
